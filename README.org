@@ -1,0 +1,52 @@
+#+title: Airsearch
+
+Airsearch 的意思是 asynchronous dirsearch，顾名思义就是一个类似 dirsearch 的 Web
+目录扫描工具，不过将多线程改成了异步的协程，提升了扫描速率
+
+** option
+#+begin_example
+usage: airsearch.py [-h] [-w PATH] [-e EXTENSIONS] [--subdirs SUBDIRS] [-r] [-R MAX_DEPTH] [-i INCLUDE_STATUS]
+                    [-x EXCLUDE_STATUS] [--exclude-sizes EXCLUDE_SIZES] [--exclude-texts EXCLUDE_TEXTS]
+                    [--exclude-response EXCLUDE_RESPONSE] [-H HEADERS] [--random-agent] [-p PROXY] [--limit SECOND]
+                    [--redirect] [--timeout SECOND]
+                    targets
+
+positional arguments:
+  targets               target URL or list file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -w PATH, --wordlist PATH
+                        wordlist path
+  -e EXTENSIONS, --extensions EXTENSIONS
+                        file extensions
+  --subdirs SUBDIRS     scan sub-directories of the given URL[s] (separated by commas)
+  -r, --recursive       recursive mode
+  -R MAX_DEPTH, --max-depth MAX_DEPTH
+                        maximum recursion depth
+  -i INCLUDE_STATUS, --include-status INCLUDE_STATUS
+                        include status codes, separated by commas, support ranges (Example: 200,300-399)
+  -x EXCLUDE_STATUS, --exclude-status EXCLUDE_STATUS
+                        exclude status codes, separated by commas, support ranges (Example: 301,500-599)
+  --exclude-sizes EXCLUDE_SIZES
+                        exclude responses by sizes, separated by commas (Example: 123B,4KB)
+  --exclude-texts EXCLUDE_TEXTS
+                        exclude responses by texts, separated by commas (Example: "Not found", "Error")
+  --exclude-response EXCLUDE_RESPONSE
+                        exclude responses by response of this page (path as input)
+  -H HEADERS, --header HEADERS
+                        HTTP request header, support multiple flags (Example: -H "Referer: example.com" -H "Accept:
+                        */*")
+  --random-agent        choose a random User-Agent for each request
+  -p PROXY, --proxy PROXY
+                        HTTP proxy
+  --limit SECOND        maximum number of concurrent connections, default is 100
+  --redirect            follow redirection
+  --timeout SECOND      timeout of per request
+#+end_example
+
+** airsearch: 13.6s
+[[file:.github/airsearch.gif]]
+
+** dirsearch: 27.9s
+[[file:.github/dirsearch.gif]]
