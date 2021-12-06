@@ -73,7 +73,7 @@ class Option:
         self.exclude_response = option.exclude_response
 
     @staticmethod
-    def parse_status_codes(raw_status_codes: str) -> list[int]:
+    def parse_status_codes(raw_status_codes: str) -> list:
         status_codes = []
         for status_code in raw_status_codes.split(','):
             try:
@@ -89,7 +89,7 @@ class Option:
         return list(set(status_codes))
 
     @staticmethod
-    def parse_targets(raw_target: str) -> list[str]:
+    def parse_targets(raw_target: str) -> list:
         targets = list()
         # todo: cidr
         if raw_target.startswith('http'):
