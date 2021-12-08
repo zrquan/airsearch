@@ -2,6 +2,7 @@ from argparse import ArgumentParser, Namespace
 
 from lib.dictionary import Dictionary
 from os import path
+from ipaddress import ip_network, ip_address
 
 
 class Option:
@@ -13,7 +14,11 @@ class Option:
 
         option = self.parse_arguments()
 
-        self.targets = self.parse_targets(option.targets)
+        try:
+            self.targets = self.parse_targets(option.targets)
+        except ValueError:
+            self.targets = self.parse_targets_file(option.targets)
+
         self.include_status = self.parse_status_codes(option.include_status) if option.include_status else []
         self.exclude_status = self.parse_status_codes(option.exclude_status) if option.exclude_status else []
 
@@ -91,19 +96,30 @@ class Option:
     @staticmethod
     def parse_targets(raw_target: str) -> list:
         targets = list()
-        # todo: cidr
         if raw_target.startswith('http'):
-            targets.append(raw_target)
-        else:
-            try:
-                with open(raw_target) as target_file:
-                    for item in target_file.readlines():
-                        if not item.startswith('http'):
-                            item = 'http://' + item
-                        targets.append(item)
-            except FileNotFoundError:
-                print('file not found, or url doesn\'t start with schema')
-                exit(0)
+            targets.extend([target for target in raw_target.split(',') if target != ''])
+        elif 0 < int(raw_target[:raw_target.index('.')]) < 255:
+            if '/' in raw_target:
+                targets.extend(['http://' + str(_) for _ in ip_network(raw_target, strict=False).hosts()])
+            elif '-' in raw_target:
+                start, end = (ip_address(ip) for ip in raw_target.split('-'))
+                while start <= end:
+                    targets.append('http://' + str(start))
+                    start += 1
+        return targets
+
+    @staticmethod
+    def parse_targets_file(raw_target: str) -> list:
+        targets = list()
+        try:
+            with open(raw_target) as target_file:
+                for item in target_file.readlines():
+                    if not item.startswith('http'):
+                        item = 'http://' + item
+                    targets.append(item)
+        except FileNotFoundError:
+            print('file not found, or url doesn\'t start with schema')
+            exit(0)
         return targets
 
     def parse_arguments(self) -> Namespace:
