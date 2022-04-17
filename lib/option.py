@@ -116,7 +116,7 @@ class Option:
                 for item in target_file.readlines():
                     if not item.startswith('http'):
                         item = 'http://' + item
-                    targets.append(item)
+                    targets.append(item.rstrip())
         except FileNotFoundError:
             print('file not found, or url doesn\'t start with schema')
             exit(0)
@@ -125,39 +125,41 @@ class Option:
     def parse_arguments(self) -> Namespace:
         parser = ArgumentParser()
 
-        parser.add_argument('targets', help='target URL or list file')
+        parser.add_argument('targets', help='target address, support string, file and CIDR format')
         parser.add_argument('-w', '--wordlist', default=path.join(self.script_path, 'resources/dict.txt'),
-                            help='wordlist path', metavar='PATH')
-        parser.add_argument('-e', '--extensions', help='file extensions')
-        parser.add_argument('--subdirs', help='scan sub-directories of the given URL[s] (separated by commas)')
+                            help='customize wordlist, default is "resources/dict.txt"', metavar='PATH')
+        parser.add_argument('-e', '--extensions', help='file extensions, separated by commas')
+        parser.add_argument('--subdirs', help='specify sub-directories of the given targets, separated by commas')
         parser.add_argument('-r', '--recursive',
                             action='store_true', help='recursive mode')
         parser.add_argument('-R', '--max-depth', help='maximum recursion depth', action='store',
                             type=int, dest='max_depth', default=self.default_max_depth)
 
-        # filter
-        parser.add_argument('-i', '--include-status', dest='include_status',
-                            help='include status codes, separated by commas, support ranges (Example: 200,300-399)')
-        parser.add_argument('-x', '--exclude-status', dest='exclude_status',
-                            help='exclude status codes, separated by commas, support ranges (Example: 301,500-599)')
-        parser.add_argument('--exclude-sizes', dest='exclude_sizes',
-                            help='exclude responses by sizes, separated by commas (Example: 123B,4KB)')
-        parser.add_argument('--exclude-texts', dest='exclude_texts',
-                            help='exclude responses by texts, separated by commas (Example: "Not found", "Error")')
-        parser.add_argument('--exclude-response', dest='exclude_response',
-                            help='exclude responses by response of this page (path as input)')
+        filter_group = parser.add_argument_group("Filter options")
 
-        # requester
-        parser.add_argument('-H', '--header', action='append', dest='headers',
-                            help='HTTP request header, support multiple flags (Example: -H "Referer: example.com" -H "Accept: */*")')
-        parser.add_argument('--random-agent', dest='use_random_agents', action='store_true',
-                            help='choose a random User-Agent for each request')
-        parser.add_argument('-p', '--proxy', help='HTTP proxy')
-        parser.add_argument('--limit', type=int, default=self.default_conn_limit, metavar='SECOND',
-                            help='maximum number of concurrent connections, default is 100')
-        parser.add_argument('--redirect', action='store_true',
-                            help='follow redirection')
-        parser.add_argument('--timeout', type=int,
-                            metavar='SECOND', help='timeout of per request')
+        filter_group.add_argument('-i', '--include-status', dest='include_status',
+                                  help='include status codes, separated by commas, support ranges (Example: 200,300-399)')
+        filter_group.add_argument('-x', '--exclude-status', dest='exclude_status',
+                                  help='exclude status codes, separated by commas, support ranges (Example: 301,500-599)')
+        filter_group.add_argument('--exclude-sizes', dest='exclude_sizes',
+                                  help='exclude responses by sizes, separated by commas (Example: 123B,4KB)')
+        filter_group.add_argument('--exclude-texts', dest='exclude_texts',
+                                  help='exclude responses by texts, separated by commas (Example: "Not found", "Error")')
+        filter_group.add_argument('--exclude-response', dest='exclude_response',
+                                  help='exclude responses by response of this page', metavar='URL')
+
+        req_group = parser.add_argument_group("Request options")
+
+        req_group.add_argument('-H', '--header', action='append', dest='headers',
+                               help='HTTP request header, support multiple flags')
+        req_group.add_argument('--random-agent', dest='use_random_agents', action='store_true',
+                               help='choose a random User-Agent for each request')
+        req_group.add_argument('-p', '--proxy', help='HTTP proxy')
+        req_group.add_argument('--limit', type=int, default=self.default_conn_limit,
+                               help='maximum number of concurrent connections, default is 100')
+        req_group.add_argument('--redirect', action='store_true',
+                               help='follow redirection')
+        req_group.add_argument('--timeout', type=int,
+                               metavar='SECOND', help='request timeout')
 
         return parser.parse_args()
