@@ -156,11 +156,25 @@ class Controller:
         return True
 
     def handle_interrupt(self) -> None:
+        import termios, sys, tty
+
+        def _getch():
+            """读取用户输入，但是不需要按回车"""
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(fd)
+                ch = sys.stdin.read(1)  # This number represents the length
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            return ch
+
         self.current_fuzzer.pause()
+
         try:
             while True:
                 self.out.progress.print(f'Fuzzer paused, you can choose \[q]uit or \[c]ontinue', style='dim red')
-                option = input()
+                option = _getch()
                 if option.lower() == 'q':
                     self.out.finish(interrupt=True)
                     exit(0)
