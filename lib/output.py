@@ -19,7 +19,7 @@ class Output:
  /\  | |__) /__` |__   /\  |__) /  ` |__| 
 /~~\ | |  \ .__/ |___ /~~\ |  \ \__, |  | 
 [/magenta]
-[#ffffbe]Extensions:[/#ffffbe] {option.extensions}
+[#ffffbe]Extensions:[/#ffffbe] {", ".join(option.extensions)}
 [#ffffbe]Wordlist size:[/#ffffbe] {len(option.wordlist)}
 [#ffffbe]Connection limit:[/#ffffbe] {option.limit}''', subtitle='by 4shen0ne', subtitle_align='right')
         self.progress = Progress(
