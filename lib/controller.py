@@ -1,4 +1,5 @@
 import asyncio
+import platform
 from queue import Queue
 from urllib import parse
 import signal
@@ -44,7 +45,8 @@ class Controller:
 
         self.current_fuzzer = None
         self.loop = asyncio.get_event_loop()
-        self.loop.add_signal_handler(signal.SIGINT, self.handle_interrupt)
+        if platform.system() is not "Windows":
+            self.loop.add_signal_handler(signal.SIGINT, self.handle_interrupt)
         self.start()
 
     def start(self) -> None:
