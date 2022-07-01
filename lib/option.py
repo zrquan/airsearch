@@ -69,7 +69,7 @@ class Option:
         self.headers = {}
         if option.headers:
             for h in option.headers:
-                hn, hv = h.split(': ')
+                hn, hv = h.split(':', 1)
                 self.headers[hn.strip()] = hv.strip()
 
         self.redirect = option.redirect
